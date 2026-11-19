@@ -16,6 +16,9 @@ _SRC = Path(__file__).resolve().parent / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
+# Import the ONNX adapter eagerly so Vercel's bundle tracing keeps onnxruntime;
+# the runtime otherwise loads it lazily from the registry.
+import tomato_det.models.onnx_detector  # noqa: E402,F401
 from tomato_det.serving.main import app  # noqa: E402  (import after sys.path setup)
 
 __all__ = ["app"]

@@ -24,9 +24,6 @@ shot-*.png
 demo_ui.html
 start_demo.bat
 
-# The ONNX graph the API loads is the committed copy in deploy/model/.
-!deploy/model/best.onnx
-
 # Node dependencies are reinstalled during the Vite build.
 frontend/node_modules/
 frontend/dist/

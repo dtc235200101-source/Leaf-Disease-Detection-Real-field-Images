@@ -5,7 +5,7 @@
 | Lớp | Công nghệ | Ghi chú |
 |---|---|---|
 | Backend | **Python 3.12 + FastAPI + Uvicorn** | `src/tomato_det/serving/`, REST `/api/*` + WebSocket `/ws/detect` |
-| Model AI | **YOLO11s export ONNX, chạy bằng onnxruntime** | graph ở `weights/yolo11s_coco/best.onnx` (~36 MB); train/eval vẫn dùng PyTorch nhưng **không nằm trong image** |
+| Model AI | **YOLO11s export ONNX, chạy bằng onnxruntime** | graph ở `deploy/model/best.onnx` (~36 MB, đã commit); train/eval vẫn dùng PyTorch nhưng **không nằm trong image** |
 | Frontend | **React 19 + Vite 7 + TypeScript** | build tĩnh vào `frontend/dist`, được FastAPI phục vụ tại `/` |
 | Dữ liệu | Không có database | chỉ đọc manifest `data/splits/*.txt` |
 
@@ -26,7 +26,7 @@ Vì có **backend Python + model AI (onnxruntime) + WebSocket**, hai hướng sa
 | `.dockerignore` | loại `data/`, `runs/`, `reports/`, `.venv`, `*.pt`/`*.onnx`… nhưng **giữ** `deploy/model/best.onnx` |
 | `deploy/model/best.onnx` | graph ONNX được đóng vào image (vì `weights/**/*.onnx` bị git-ignore) |
 
-`weights/` vẫn là đường dẫn app đọc lúc chạy; Dockerfile copy `deploy/model/best.onnx` vào `weights/yolo11s_coco/best.onnx`. Suy luận trong service đi qua `src/tomato_det/models/onnx_detector.py` (letterbox + decode + NMS numpy), không import torch.
+`configs/app.yaml` trỏ thẳng tới `deploy/model/best.onnx` nên cùng một đường dẫn dùng được ở local, Docker và Vercel; Dockerfile copy file đó vào `./deploy/model/`. Muốn dùng graph khác mà không sửa YAML, đặt `TDET_CHECKPOINT_YOLO11S_COCO`. Suy luận trong service đi qua `src/tomato_det/models/onnx_detector.py` (letterbox + decode + NMS numpy), không import torch.
 
 ## 3. Deploy bằng Blueprint (khuyến nghị)
 
@@ -119,15 +119,18 @@ Thiết lập trên Vercel (Project → Settings → Environment Variables):
 
 | Biến | Giá trị | Lý do |
 |---|---|---|
-| `TDET_CHECKPOINT_YOLO11S_COCO` | `deploy/model/best.onnx` | `app.yaml` trỏ `weights/yolo11s_coco/best.onnx` (bị git-ignore); Vercel chỉ có bản trong `deploy/model` |
 | `TDET_DEVICE` | `cpu` | serverless không có GPU |
 | `TDET_MAX_LOADED_MODELS` | `1` | giới hạn RAM của function |
 
+Không cần `TDET_CHECKPOINT_YOLO11S_COCO` nữa: `configs/app.yaml` đã trỏ `deploy/model/best.onnx` (file được commit). Biến đó chỉ dùng khi muốn thay graph mà không sửa YAML.
+
 `main.py` ở root chỉ thêm `src/` vào `sys.path` rồi export `app`, vì Vercel tìm
-`main.py`/`app.py` ở root còn package nằm trong `src/`. Không đặt `installCommand`
-cho service `app`: lệnh cài tùy biến làm Vercel **không tối ưu bundle** và vượt giới hạn
-225 MB (scipy/PyWavelets kéo theo `ImageHash`, uvicorn…). Để Vercel tự cài và tự prune
-theo import graph; `functions.excludeFiles` loại thêm tài liệu/artefact khỏi bundle.
+`main.py`/`app.py` ở root còn package nằm trong `src/`; file này cũng import eager
+`tomato_det.models.onnx_detector` để bundle tracing giữ lại `onnxruntime`. Không đặt
+`installCommand` cho service `app`: lệnh cài tùy biến làm Vercel **không tối ưu bundle**
+và vượt giới hạn 225 MB (scipy/PyWavelets kéo theo `ImageHash`, uvicorn…). Để Vercel tự
+cài và tự prune theo import graph; `functions.excludeFiles` loại thêm tài liệu/artefact
+khỏi bundle.
 
 Hạn chế cần biết trước khi chọn Vercel:
 

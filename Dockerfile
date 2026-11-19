@@ -34,7 +34,7 @@ RUN pip install -r requirements-serve.txt \
 
 COPY data/splits ./data/splits
 COPY --from=frontend-build /frontend/dist ./frontend/dist
-COPY deploy/model/best.onnx ./weights/yolo11s_coco/best.onnx
+COPY deploy/model/best.onnx ./deploy/model/best.onnx
 
 # Render injects PORT; fall back to 8000 when running the image locally.
 EXPOSE 8000

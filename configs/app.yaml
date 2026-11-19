@@ -7,7 +7,9 @@ models:
   yolo11s_coco:
     display_name: YOLO11s fine-tuned from COCO (ONNX Runtime)
     architecture: yolo11s_onnx
-    checkpoint: weights/yolo11s_coco/best.onnx
+    # Committed graph, so the same path works locally, in Docker and on Vercel.
+    # weights/**/*.onnx is git-ignored; override with TDET_CHECKPOINT_YOLO11S_COCO.
+    checkpoint: deploy/model/best.onnx
 tomato_gate:
   enabled: true
   checkpoint: weights/tomato_gate/best.pt
