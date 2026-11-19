@@ -124,8 +124,10 @@ Thiết lập trên Vercel (Project → Settings → Environment Variables):
 | `TDET_MAX_LOADED_MODELS` | `1` | giới hạn RAM của function |
 
 `main.py` ở root chỉ thêm `src/` vào `sys.path` rồi export `app`, vì Vercel tìm
-`main.py`/`app.py` ở root còn package nằm trong `src/`. `installCommand` của service
-`app` cài `requirements-serve.txt` (không có torch) thay vì `pyproject.toml`.
+`main.py`/`app.py` ở root còn package nằm trong `src/`. Không đặt `installCommand`
+cho service `app`: lệnh cài tùy biến làm Vercel **không tối ưu bundle** và vượt giới hạn
+225 MB (scipy/PyWavelets kéo theo `ImageHash`, uvicorn…). Để Vercel tự cài và tự prune
+theo import graph; `functions.excludeFiles` loại thêm tài liệu/artefact khỏi bundle.
 
 Hạn chế cần biết trước khi chọn Vercel:
 

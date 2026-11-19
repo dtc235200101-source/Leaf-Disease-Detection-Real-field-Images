@@ -5,7 +5,11 @@
       "root": ".",
       "framework": "fastapi",
       "entrypoint": "main:app",
-      "installCommand": "pip install -r requirements-serve.txt"
+      "functions": {
+        "main.py": {
+          "excludeFiles": "{frontend/**,reports/**,docs/**,tests/**,data/raw/**,data/interim/**,data/processed/**,runs/**,weights/**,shot-*.png,*.pdf,*.docx}"
+        }
+      }
     },
     "frontend": {
       "root": "frontend",

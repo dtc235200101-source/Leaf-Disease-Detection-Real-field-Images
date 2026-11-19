@@ -12,6 +12,14 @@ dependencies = [
   "PyYAML>=6,<7",
   "Pillow>=10,<12",
   "ImageHash>=4.3,<5",
+  # Serving stack, duplicated here so Vercel's zero-config Python builder has a
+  # complete manifest even if it reads pyproject.toml instead of requirements.txt.
+  "numpy>=1.26,<3",
+  "onnxruntime>=1.18,<2",
+  "fastapi>=0.115,<1",
+  "python-multipart>=0.0.9,<1",
+  "pydantic>=2.7,<3",
+  "pydantic-settings>=2.3,<3",
 ]
 
 [project.scripts]
