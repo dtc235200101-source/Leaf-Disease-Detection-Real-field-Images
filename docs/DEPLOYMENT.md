@@ -5,11 +5,11 @@
 | Lớp | Công nghệ | Ghi chú |
 |---|---|---|
 | Backend | **Python 3.12 + FastAPI + Uvicorn** | `src/tomato_det/serving/`, REST `/api/*` + WebSocket `/ws/detect` |
-| Model AI | **YOLO11s (Ultralytics) trên PyTorch CPU** | checkpoint thật ở `weights/yolo11s_coco/best.pt` (~19 MB) |
+| Model AI | **YOLO11s export ONNX, chạy bằng onnxruntime** | graph ở `weights/yolo11s_coco/best.onnx` (~36 MB); train/eval vẫn dùng PyTorch nhưng **không nằm trong image** |
 | Frontend | **React 19 + Vite 7 + TypeScript** | build tĩnh vào `frontend/dist`, được FastAPI phục vụ tại `/` |
 | Dữ liệu | Không có database | chỉ đọc manifest `data/splits/*.txt` |
 
-Vì có **backend Python + model AI nặng (torch/ultralytics) + WebSocket**, hai hướng sau không dùng được:
+Vì có **backend Python + model AI (onnxruntime) + WebSocket**, hai hướng sau không dùng được:
 
 - **GitHub Pages**: chỉ phục vụ file tĩnh, không chạy được Python/torch/WebSocket.
 - **Vercel**: serverless function giới hạn dung lượng bundle (không chứa nổi torch) và không phù hợp WebSocket stateful.
@@ -20,13 +20,13 @@ Vì có **backend Python + model AI nặng (torch/ultralytics) + WebSocket**, ha
 
 | File | Vai trò |
 |---|---|
-| `Dockerfile` | multi-stage: build React bằng Node 22 → runtime Python 3.12 + torch CPU + checkpoint |
-| `requirements-serve.txt` | dependency chỉ để chạy inference (không kéo torchmetrics/pycocotools/sklearn/pandas/matplotlib) |
+| `Dockerfile` | multi-stage: build React bằng Node 22 → runtime Python 3.12 + onnxruntime (**không cài torch**) |
+| `requirements-serve.txt` | chỉ onnxruntime + FastAPI + Pillow/numpy; không kéo torch/ultralytics/torchmetrics/pycocotools |
 | `render.yaml` | Blueprint: Docker, `plan: free`, health check `/api/health`, env `TDET_*` |
-| `.dockerignore` | loại `data/`, `runs/`, `reports/`, `.venv`, `*.pt`… nhưng **giữ** `deploy/model/best.pt` |
-| `deploy/model/best.pt` | bản checkpoint được đóng vào image (vì `weights/**/*.pt` bị git-ignore) |
+| `.dockerignore` | loại `data/`, `runs/`, `reports/`, `.venv`, `*.pt`/`*.onnx`… nhưng **giữ** `deploy/model/best.onnx` |
+| `deploy/model/best.onnx` | graph ONNX được đóng vào image (vì `weights/**/*.onnx` bị git-ignore) |
 
-`weights/` vẫn là đường dẫn app đọc lúc chạy; Dockerfile copy `deploy/model/best.pt` vào `weights/yolo11s_coco/best.pt`.
+`weights/` vẫn là đường dẫn app đọc lúc chạy; Dockerfile copy `deploy/model/best.onnx` vào `weights/yolo11s_coco/best.onnx`. Suy luận trong service đi qua `src/tomato_det/models/onnx_detector.py` (letterbox + decode + NMS numpy), không import torch.
 
 ## 3. Deploy bằng Blueprint (khuyến nghị)
 
@@ -59,7 +59,7 @@ Biến môi trường: `TDET_DEVICE=cpu`, `TDET_MAX_LOADED_MODELS=1`, `TDET_LOG_
 
 | Trường | Giá trị |
 |---|---|
-| Build Command | `pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision && pip install -r requirements-serve.txt && pip install --no-deps -e .` |
+| Build Command | `pip install -r requirements-serve.txt && pip install --no-deps -e .` |
 | Start Command | `uvicorn tomato_det.serving.main:app --host 0.0.0.0 --port $PORT` |
 | Health Check Path | `/api/health` |
 
@@ -67,10 +67,11 @@ Start Command trên chính là lệnh chuẩn cần dán vào Render: bind `0.0.
 
 ## 5. Giới hạn của plan free (đọc trước khi deploy)
 
-- **RAM 512 MB.** `import torch` + YOLO11s có thể vượt ngưỡng này, đặc biệt khi `imgsz=640`; nếu Render báo OOM/restart liên tục thì nâng lên **Starter (2 GB, ~7 USD/tháng)** hoặc hạ `imgsz` xuống `416`/`320` trên giao diện.
+- **RAM 512 MB.** Đo thực tế trên máy dev (RSS, một tiến trình): đường PyTorch cũ cần **275 MB sau khi nạp model và 436 MB sau một lần suy luận `imgsz=640`**; đường ONNX chỉ **107 MB / 145 MB**, và cả app FastAPI (model nạp lười) là **66 MB khi rảnh, 178 MB sau request đầu, 205 MB sau 4 request**. Vậy bản ONNX còn thừa ~300 MB cho uvicorn và request đồng thời. Nếu vẫn bị OOM, gói có 2 GB RAM là **Standard (25 USD/tháng)** — *Starter (7 USD) vẫn chỉ 512 MB* nên không giải quyết RAM.
 - **Spin down sau ~15 phút không có request** → request đầu tiên chậm khoảng 30–60 giây (cold start, phải nạp lại model).
 - **Không có persistent disk** trên free plan → checkpoint phải nằm trong image (đó là lý do dùng `deploy/model/best.pt`).
-- **Image lớn** (~1,5–2 GB) nên mỗi lần deploy mất vài phút.
+- **Tốc độ suy luận.** Đo trên máy 6 core (1 thread ORT): **240 ms/frame @`imgsz=640`**, **57 ms @320** sau warm-up; request đầu tiên chậm hơn (~2,3 s) vì phiên onnxruntime khởi tạo và tối ưu graph lần đầu. Trên 0.1 CPU của free plan, con số này sẽ cao hơn nhiều (ước tính bậc 1–2 s/frame) nên upload ảnh vẫn ổn, còn live preview sẽ giật. Muốn nhanh hơn: nâng plan có nhiều CPU hơn và đặt biến `TDET_ORT_THREADS` (mặc định `1`).
+- **Image nhỏ hơn trước** (không còn wheel torch ~200 MB) nên build nhanh hơn, nhưng vẫn vài phút.
 - Một số tài khoản Render yêu cầu xác minh thẻ trước khi tạo service free.
 - Ảnh upload và frame webcam **rời khỏi máy bạn** và được xử lý trên server Render — khác với thiết kế local ban đầu.
 
@@ -85,10 +86,12 @@ Start Command trên chính là lệnh chuẩn cần dán vào Render: bind `0.0.
 ## 7. Cập nhật model sau này
 
 ```powershell
-# sau khi train xong
-Copy-Item runs/<exp_id>/weights/best.pt deploy/model/best.pt -Force
-git add deploy/model/best.pt
-git commit -m "Update deployed checkpoint"
+# sau khi train xong: export graph ONNX động (cho phép imgsz 320/416/640)
+.venv\Scripts\python.exe -c "from ultralytics import YOLO; YOLO('runs/<exp_id>/weights/best.pt').export(format='onnx', imgsz=640, dynamic=True, opset=12, simplify=False)"
+Copy-Item runs/<exp_id>/weights/best.onnx weights/yolo11s_coco/best.onnx -Force
+Copy-Item weights/yolo11s_coco/best.onnx deploy/model/best.onnx -Force
+git add deploy/model/best.onnx
+git commit -m "Update deployed ONNX graph"
 git push
 ```
 

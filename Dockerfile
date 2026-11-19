@@ -7,35 +7,34 @@ RUN npm ci
 COPY frontend ./
 RUN npm run build
 
-# Render production image for the all-in-one FastAPI + React inference service.
-# The trained checkpoint ships from deploy/model/best.pt because weights/*.pt is
-# git-ignored; it is copied to the path app.yaml expects at runtime.
+# Render production image: FastAPI + React + ONNX Runtime.
+# Inference runs on onnxruntime, so no torch/ultralytics wheel is installed here;
+# the exported graph ships from deploy/model/best.onnx because weights/*.onnx is
+# git-ignored. It is copied to the path app.yaml expects at runtime.
 FROM python:3.12-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PYTHONPATH=/app/src \
-    TDET_DEVICE=cpu \
     TDET_MAX_LOADED_MODELS=1
 
 WORKDIR /app
 
-# libgl1/libglib2.0-0 are required by the OpenCV wheel that ultralytics pulls in.
+# libgomp1 is the only shared library onnxruntime needs on a slim base image.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
+    && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml requirements.txt requirements-serve.txt ./
 COPY src ./src
 COPY configs ./configs
-RUN pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision \
-    && pip install -r requirements-serve.txt \
+RUN pip install -r requirements-serve.txt \
     && pip install --no-deps -e .
 
 COPY data/splits ./data/splits
 COPY --from=frontend-build /frontend/dist ./frontend/dist
-COPY deploy/model/best.pt ./weights/yolo11s_coco/best.pt
+COPY deploy/model/best.onnx ./weights/yolo11s_coco/best.onnx
 
 # Render injects PORT; fall back to 8000 when running the image locally.
 EXPOSE 8000

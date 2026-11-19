@@ -1,0 +1,170 @@
+{
+  "input": "C:\\Users\\Admin\\Documents\\Leaf_Disease_Detection_in_Real-field_Images\\reports\\BAO_CAO_TOMATO_LEAF_DETECTOR_NHOM_01.docx",
+  "fonts_by_char_count": {
+    "Times New Roman": 10947
+  },
+  "direct_run_formatting_runs": 201,
+  "direct_paragraph_formatting_paragraphs": 100,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 2,
+      "text": "L\u1edcI C\u1ea2M \u01a0N",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 6,
+      "text": "M\u1ee4C L\u1ee4C",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 18,
+      "text": "PH\u00c2N C\u00d4NG NHI\u1ec6M V\u1ee4",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 23,
+      "text": "DANH S\u00c1CH C\u00c1C B\u1ea2NG",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 29,
+      "text": "DANH S\u00c1CH C\u00c1C H\u00ccNH",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 32,
+      "text": "M\u1ede \u0110\u1ea6U",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 37,
+      "text": "CH\u01af\u01a0NG 1. C\u01a0 S\u1ede L\u00dd THUY\u1ebeT",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 38,
+      "text": "1.1. H\u1ecdc m\u00e1y v\u00e0 h\u1ecdc s\u00e2u",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 40,
+      "text": "1.2. Ph\u00e1t hi\u1ec7n \u0111\u1ed1i t\u01b0\u1ee3ng",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 44,
+      "text": "1.3. YOLO11s",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 46,
+      "text": "1.4. Ch\u1ec9 s\u1ed1 \u0111\u00e1nh gi\u00e1",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 48,
+      "text": "CH\u01af\u01a0NG 2. M\u00d4 H\u00ccNH V\u00c0 PH\u01af\u01a0NG PH\u00c1P X\u00c2Y D\u1ef0NG H\u1ec6 TH\u1ed0NG",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 49,
+      "text": "2.1. Ph\u00e2n t\u00edch b\u00e0i to\u00e1n",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 51,
+      "text": "2.2. D\u1eef li\u1ec7u PlantDoc v\u00e0 quy tr\u00ecnh chu\u1ea9n h\u00f3a",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 55,
+      "text": "2.3. Ki\u1ebfn tr\u00fac ph\u1ea7n m\u1ec1m",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 60,
+      "text": "2.4. Giao th\u1ee9c suy lu\u1eadn live",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 63,
+      "text": "CH\u01af\u01a0NG 3. HI\u1ec6N TR\u1ea0NG TH\u1ef0C NGHI\u1ec6M V\u00c0 K\u1ebe HO\u1ea0CH \u0110\u00c1NH GI\u00c1",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 64,
+      "text": "3.1. Nguy\u00ean t\u1eafc \u0111\u00e1nh gi\u00e1",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 68,
+      "text": "3.2. Hi\u1ec7n tr\u1ea1ng k\u1ebft qu\u1ea3",
+      "style": "2_1_Level2_c2"
+    },
+    {
+      "para_index": 70,
+      "text": "3.3. Quy tr\u00ecnh t\u1ea1o k\u1ebft qu\u1ea3 h\u1ee3p l\u1ec7",
+      "style": "2_1_Level2_c2"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 2,
+        "text": "L\u1edcI C\u1ea2M \u01a0N",
+        "style": "1_Chapter_c5"
+      },
+      {
+        "para_index": 3,
+        "text": "Nh\u00f3m th\u1ef1c hi\u1ec7n xin tr\u00e2n tr\u1ecdng c\u1ea3m \u01a1n TS. Ng\u00f4 H\u1eefu Huy \u0111\u00e3 h\u01b0\u1edbng d\u1eabn v\u00e0 g\u00f3p \u00fd cho \u0111\u1ec1 t\u00e0i. Nh\u00f3m c\u0169ng c\u1ea3m \u01a1n c\u00e1c th\u1ea7y c\u00f4 Tr\u01b0\u1edd",
+        "style": "0_TEXT_c1"
+      },
+      {
+        "para_index": 4,
+        "text": "B\u00e1o c\u00e1o tr\u00ecnh b\u00e0y \u0111\u1ecbnh h\u01b0\u1edbng, ki\u1ebfn tr\u00fac v\u00e0 hi\u1ec7n tr\u1ea1ng tri\u1ec3n khai c\u1ee7a h\u1ec7 th\u1ed1ng ph\u00e1t hi\u1ec7n l\u00e1 c\u00e0 chua kh\u1ecfe ho\u1eb7c b\u1ec7nh tr\u00ean \u1ea3",
+        "style": "0_TEXT_c1"
+      },
+      {
+        "para_index": 6,
+        "text": "M\u1ee4C L\u1ee4C",
+        "style": "1_Chapter_c5"
+      },
+      {
+        "para_index": 18,
+        "text": "PH\u00c2N C\u00d4NG NHI\u1ec6M V\u1ee4",
+        "style": "1_Chapter_c5"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 2,
+        "run_text": "L\u1edcI C\u1ea2M \u01a0N",
+        "style": "1_Chapter_c5"
+      },
+      {
+        "para_index": 3,
+        "run_text": "Nh\u00f3m th\u1ef1c hi\u1ec7n xin tr\u00e2n tr\u1ecdng c\u1ea3m \u01a1n TS. Ng\u00f4 H\u1eefu Huy \u0111\u00e3 h\u01b0\u1edbng d\u1eabn v\u00e0 g\u00f3p \u00fd cho \u0111",
+        "style": "0_TEXT_c1"
+      },
+      {
+        "para_index": 4,
+        "run_text": "B\u00e1o c\u00e1o tr\u00ecnh b\u00e0y \u0111\u1ecbnh h\u01b0\u1edbng, ki\u1ebfn tr\u00fac v\u00e0 hi\u1ec7n tr\u1ea1ng tri\u1ec3n khai c\u1ee7a h\u1ec7 th\u1ed1ng ph",
+        "style": "0_TEXT_c1"
+      },
+      {
+        "para_index": 6,
+        "run_text": "M\u1ee4C L\u1ee4C",
+        "style": "1_Chapter_c5"
+      },
+      {
+        "para_index": 7,
+        "run_text": "L\u1edcI C\u1ea2M \u01a0N",
+        "style": "toc 1"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

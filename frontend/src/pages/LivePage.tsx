@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ClassInfo, ModelInfo, StreamConfig } from "../api/types";
 import { ControlsPanel } from "../components/ControlsPanel";
+import { DetectSwitch, type DetectView } from "../components/DetectSwitch";
 import { Disclaimer } from "../components/Disclaimer";
 import { Legend } from "../components/Legend";
 import { RecommendationList } from "../components/RecommendationList";
@@ -17,9 +18,11 @@ import { encodeVideoFrame } from "../lib/frameEncoder";
 interface LivePageProps {
   classes: ClassInfo[];
   models: ModelInfo[];
+  view: DetectView;
+  onViewChange: (view: DetectView) => void;
 }
 
-export function LivePage({ classes, models }: LivePageProps) {
+export function LivePage({ classes, models, view, onViewChange }: LivePageProps) {
   const available = models.find((item) => item.available) ?? models[0];
   const [model, setModel] = useState(available?.model_id ?? "yolo11s_coco");
   const [conf, setConf] = useState(0.25);
@@ -89,24 +92,114 @@ export function LivePage({ classes, models }: LivePageProps) {
   const detections = hideHealthy
     ? (result?.detections ?? []).filter((item) => item.class_name !== "healthy")
     : (result?.detections ?? []);
+
   return (
-    <main className="page-grid">
-      <section>
-        <h1>Camera trực tiếp</h1>
-        <VideoStage videoRef={videoRef} stageRef={stageRef} active={webcamState === "active"} image={result?.image ?? null} detections={detections} colorForClass={colorFor} labelForClass={labelFor} />
-        <div className="actions"><button type="button" onClick={() => void start()} disabled={webcamState === "starting" || !available?.available}>Bật camera</button><button type="button" className="secondary" onClick={stop} disabled={webcamState === "idle"}>Dừng camera</button></div>
+    <div className="detect-grid">
+      {/* Cột trái (7/12): camera thật + overlay canvas, gộp bằng Segmented Control */}
+      <section className="card work-card">
+        <div className="work-head">
+          <div className="work-head-title">
+            <span className="work-head-icon" aria-hidden="true">📷</span>
+            <div>
+              <h2 className="card-title">Camera trực tiếp</h2>
+              <p className="card-sub">
+                {webcamState === "active"
+                  ? `Đang nhận khung hình thật · ${detections.length} vùng phát hiện`
+                  : "Bật camera để gửi khung hình qua /ws/detect"}
+              </p>
+            </div>
+          </div>
+          <DetectSwitch view={view} onChange={onViewChange} />
+        </div>
+
+        <VideoStage
+          videoRef={videoRef}
+          stageRef={stageRef}
+          active={webcamState === "active"}
+          image={result?.image ?? null}
+          detections={detections}
+          colorForClass={colorFor}
+          labelForClass={labelFor}
+        />
+
+        <div className="upload-actions">
+          <button
+            type="button"
+            className="btn-analyze"
+            onClick={() => void start()}
+            disabled={webcamState === "starting" || !available?.available}
+          >
+            {webcamState === "starting" ? "⏳ Đang mở camera…" : "▶ Bật camera"}
+          </button>
+          <button type="button" className="btn-soft" onClick={stop} disabled={webcamState === "idle"}>
+            ⏹ Dừng camera
+          </button>
+        </div>
+
         <StatsBar fps={fps} latency={result?.inference_ms ?? null} status={streamState} />
-        {(webcamError || streamError) && <p className="error" role="alert">{webcamError ?? streamError}</p>}
+
+        {(webcamError || streamError) && (
+          <p className="error" role="alert">
+            {webcamError ?? streamError}
+          </p>
+        )}
+
+        <p className="note">
+          Khung hình JPEG được gửi liên tục qua <code>/ws/detect</code>; backend chỉ xử lý khung mới
+          nhất nên hình không bị trễ dây chuyền khi CPU chậm.
+        </p>
       </section>
-      <aside>
-        <ControlsPanel models={models} model={model} conf={conf} iou={iou} imgsz={imgsz} onModel={setModel} onConf={setConf} onIou={setIou} onSize={setImgsz} hideHealthy={hideHealthy} onHideHealthy={setHideHealthy} />
-        <ResultList detections={detections} classes={classes} />
-        {result?.input_assessment.status === "rejected" && <p className="gate-warning">🚫 {result.input_assessment.message}</p>}
-        {result?.input_assessment.status === "unverified" && <p className="hint">⚠️ {result.input_assessment.message}</p>}
-        {result?.input_assessment.status !== "rejected" && result && <RecommendationList recommendations={result.recommendations} />}
-        <Legend classes={classes} />
-        <Disclaimer />
-      </aside>
-    </main>
+
+      {/* Cột phải (5/12): KẾT QUẢ ở trên cùng, ĐIỀU KHIỂN MÔ HÌNH ở phía dưới */}
+      <div className="right-col">
+        <aside className="card results-card">
+          <div className="card-head">
+            <div>
+              <h2 className="card-title">Kết quả &amp; hướng xử lý</h2>
+              <p className="card-sub">Cập nhật theo từng khung hình mới nhất</p>
+            </div>
+            {result && <span className="card-tag">{Math.round(result.inference_ms)} ms</span>}
+          </div>
+
+          <ResultList detections={detections} classes={classes} />
+
+          {result?.input_assessment.status === "rejected" && (
+            <p className="gate-warning">🚫 {result.input_assessment.message}</p>
+          )}
+          {result?.input_assessment.status === "unverified" && (
+            <p className="hint">⚠️ {result.input_assessment.message}</p>
+          )}
+          {result?.input_assessment.status !== "rejected" && result && (
+            <RecommendationList recommendations={result.recommendations} />
+          )}
+
+          <Legend classes={classes} />
+          <Disclaimer />
+        </aside>
+
+        <section className="card controls-card">
+          <div className="card-head">
+            <div>
+              <h2 className="card-title">Điều khiển mô hình</h2>
+              <p className="card-sub">Áp dụng ngay cho luồng WebSocket đang mở</p>
+            </div>
+            <span className="card-tag">THAM SỐ</span>
+          </div>
+          <ControlsPanel
+            models={models}
+            model={model}
+            conf={conf}
+            iou={iou}
+            imgsz={imgsz}
+            onModel={setModel}
+            onConf={setConf}
+            onIou={setIou}
+            onSize={setImgsz}
+            hideHealthy={hideHealthy}
+            onHideHealthy={setHideHealthy}
+          />
+        </section>
+      </div>
+    </div>
   );
 }

@@ -1,9 +1,8 @@
 # Runtime dependencies for the deployed inference service only.
-# PyTorch and torchvision are NOT listed here: they are installed from the CPU
-# wheel index in the Dockerfile (CPU/CUDA wheels differ per platform).
-# Training/evaluation tooling (torchmetrics, pycocotools, scikit-learn, pandas,
-# matplotlib) is intentionally excluded to keep the deployed image small.
-ultralytics>=8.3,<9
+# Inference runs on ONNX Runtime: torch/ultralytics are NOT part of the image,
+# which keeps the served process far below a 512 MB instance limit.
+# Training/evaluation tooling lives in requirements-train.txt.
+onnxruntime>=1.18,<2
 fastapi>=0.115,<1
 uvicorn[standard]>=0.30,<1
 python-multipart>=0.0.9,<1

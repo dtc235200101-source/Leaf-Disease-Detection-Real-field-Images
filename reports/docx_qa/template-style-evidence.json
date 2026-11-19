@@ -1,0 +1,170 @@
+{
+  "input": "C:\\Users\\Admin\\Downloads\\BAO CAO DU AN _Hoc may_NHOM 1_2026,09mm,25.docx",
+  "fonts_by_char_count": {
+    "Times New Roman": 2364
+  },
+  "direct_run_formatting_runs": 527,
+  "direct_paragraph_formatting_paragraphs": 117,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 1,
+      "text": "TH\u00c1I NGUY\u00caN, N\u0102M 2026",
+      "style": "Normal"
+    },
+    {
+      "para_index": 2,
+      "text": "L\u1edcI C\u1ea2M \u01a0N",
+      "style": "1_Chapter_c5"
+    },
+    {
+      "para_index": 273,
+      "text": "KHOA C\u00d4NG NGH\u1ec6 TH\u00d4NG TIN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 275,
+      "text": "KHOA C\u00d4NG NGH\u1ec6 TH\u00d4NG TIN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 282,
+      "text": "B\u00c1O C\u00c1O D\u1ef0 \u00c1N",
+      "style": "Normal"
+    },
+    {
+      "para_index": 283,
+      "text": "H\u1eccC PH\u1ea6N H\u1eccC M\u00c1Y",
+      "style": "Normal"
+    },
+    {
+      "para_index": 284,
+      "text": "B\u00c1O C\u00c1O D\u1ef0 \u00c1N",
+      "style": "Normal"
+    },
+    {
+      "para_index": 285,
+      "text": "H\u1eccC PH\u1ea6N H\u1eccC M\u00c1Y",
+      "style": "Normal"
+    },
+    {
+      "para_index": 290,
+      "text": "X\u00c2Y D\u1ef0NG H\u1ec6 TH\u1ed0NG GI\u00c1M S\u00c1T AN TO\u00c0N \nC\u00d4NG TR\u01af\u1edcNG S\u1eec D\u1ee4NG M\u00d4 H\u00ccNH YOLO",
+      "style": "Normal"
+    },
+    {
+      "para_index": 291,
+      "text": "X\u00c2Y D\u1ef0NG H\u1ec6 TH\u1ed0NG GI\u00c1M S\u00c1T AN TO\u00c0N \nC\u00d4NG TR\u01af\u1edcNG S\u1eec D\u1ee4NG M\u00d4 H\u00ccNH YOLO",
+      "style": "Normal"
+    },
+    {
+      "para_index": 293,
+      "text": "NH\u00d3M 01",
+      "style": "Normal"
+    },
+    {
+      "para_index": 296,
+      "text": "Nguy\u1ec5n \u0110\u1ee9c Th\u1eafng (#)",
+      "style": "Normal"
+    },
+    {
+      "para_index": 297,
+      "text": "B\u00f9i Th\u1ebf Vinh",
+      "style": "Normal"
+    },
+    {
+      "para_index": 298,
+      "text": "Ng\u00f4 Quang M\u1ea1nh",
+      "style": "Normal"
+    },
+    {
+      "para_index": 300,
+      "text": "TS. Ng\u00f4 H\u1eefu Huy",
+      "style": "Normal"
+    },
+    {
+      "para_index": 304,
+      "text": "Sinh vi\u00ean",
+      "style": "Normal"
+    },
+    {
+      "para_index": 308,
+      "text": "Nguy\u1ec5n V\u0103n \u2026",
+      "style": "Normal"
+    },
+    {
+      "para_index": 309,
+      "text": "Stt",
+      "style": "0_TEXT_c1"
+    },
+    {
+      "para_index": 310,
+      "text": "T\u00ean nhi\u1ec7m v\u1ee5",
+      "style": "0_TEXT_c1"
+    },
+    {
+      "para_index": 311,
+      "text": "Ng\u01b0\u1eddi th\u1ef1c hi\u1ec7n",
+      "style": "0_TEXT_c1"
+    }
+  ],
+  "examples": {
+    "direct_run_formatting": [
+      {
+        "para_index": 1,
+        "run_text": "TH\u00c1I NGUY\u00caN, N\u0102M 202",
+        "style": "Normal"
+      },
+      {
+        "para_index": 1,
+        "run_text": "6",
+        "style": "Normal"
+      },
+      {
+        "para_index": 2,
+        "run_text": "L\u1edcI C",
+        "style": "1_Chapter_c5"
+      },
+      {
+        "para_index": 2,
+        "run_text": "\u1ea2M \u01a0N",
+        "style": "1_Chapter_c5"
+      },
+      {
+        "para_index": 3,
+        "run_text": "L\u1eddi \u0111\u1ea7u ti\u00ean, em xin g\u1eedi l\u1eddi bi\u1ebft \u01a1n s\u00e2u s\u1eafc \u0111\u1ebfn TS. Ng\u00f4 H\u1eefu Huy ng\u01b0\u1eddi \u0111\u00e3 t\u1eadn t\u00ec",
+        "style": "0_TEXT_c1"
+      }
+    ],
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 6,
+        "text": "Th\u00e1i Nguy\u00ean, ng\u00e0y \u2026\u2026 th\u00e1ng \u2026\u2026 n\u0103m 2026",
+        "style": "0_TEXT_c1"
+      },
+      {
+        "para_index": 95,
+        "text": "Ng\u00e0y nay, c\u00f4ng ngh\u1ec7 th\u00f4ng tin ph\u00e1t tri\u1ec3n \u0111\u1ed3ng ngh\u0129a v\u1edbi vi\u1ec7c ph\u00e1t tri\u1ec3n c\u00e1c ph\u1ea7n m\u1ec1m \u1ee9ng d\u1ee5ng. Ph\u1ea7n m\u1ec1m khai ph\u00e1 d\u1eef li\u1ec7u",
+        "style": "Normal"
+      },
+      {
+        "para_index": 96,
+        "text": "Hi\u1ec7n nay, k\u1ef9 thu\u1eadt khai ph\u00e1 d\u1eef li\u1ec7u \u0111ang \u0111\u01b0\u1ee3c \u00e1p d\u1ee5ng m\u1ed9t c\u00e1ch r\u1ed9ng r\u00e3i trong nhi\u1ec1u l\u0129nh v\u1ef1c kinh doanh v\u00e0 \u0111\u1eddi s\u1ed1ng kh\u00e1c",
+        "style": "Normal"
+      },
+      {
+        "para_index": 97,
+        "text": "M\u1eb7c d\u00f9 \u0111\u00e3 c\u1ed1 g\u1eafng h\u1ebft s\u1ee9c nh\u01b0ng do th\u1eddi gian ng\u1eafn n\u00ean \u0111\u1ec1 t\u00e0i kh\u00f4ng tr\u00e1nh kh\u1ecfi nhi\u1ec1u thi\u1ebfu s\u00f3t, r\u1ea5t mong \u0111\u01b0\u1ee3c s\u1ef1 quan t\u00e2m",
+        "style": "Normal"
+      },
+      {
+        "para_index": 98,
+        "text": "\t\u0110\u1ec3 c\u00f3 th\u1ec3 ho\u00e0n th\u00e0nh \u0111\u1ec1 t\u00e0i n\u00e0y, t\u00f4i xin g\u1eedi l\u1eddi c\u1ea3m \u01a1n s\u00e2u s\u1eafc gi\u00e1o vi\u00ean h\u01b0\u1edbng d\u1eabn \u0111\u00e3 nhi\u1ec7t t\u00ecnh h\u01b0\u1edbng d\u1eabn, ch\u1ec9 b\u1ea3o v\u00e0",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

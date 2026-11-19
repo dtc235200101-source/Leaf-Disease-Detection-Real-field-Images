@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib.util
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -14,6 +13,7 @@ from tomato_det.models.registry import (
     ModelUnavailableError,
     build_detector,
     load_model_specs,
+    missing_runtime,
     model_availability,
 )
 
@@ -56,8 +56,9 @@ class ModelManager:
         output: list[ModelStatus] = []
         for spec in self._specs.values():
             available, reason = model_availability(spec)
-            if available and importlib.util.find_spec("ultralytics") is None:
-                available, reason = False, "Ultralytics is not installed"
+            runtime_problem = missing_runtime(spec.architecture)
+            if available and runtime_problem is not None:
+                available, reason = False, runtime_problem
             output.append(ModelStatus(spec.model_id, spec.display_name, available, reason))
         return output
 

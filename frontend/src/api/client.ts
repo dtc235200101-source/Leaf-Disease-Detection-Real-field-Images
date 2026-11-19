@@ -8,6 +8,7 @@ import {
   type ModelInfo,
 } from "./types";
 import { apiUrl } from "./endpoints";
+import { appendHistory } from "../lib/history";
 
 export class HttpApiError extends Error {
   readonly code: string;
@@ -87,7 +88,7 @@ export function getModels(): Promise<ModelInfo[]> {
   return requestJson("/api/models", (payload): payload is ModelInfo[] => Array.isArray(payload) && payload.every(isModelInfo));
 }
 
-export function detectImage(
+export async function detectImage(
   file: File,
   options: { model: string; conf: number; iou: number; imgsz: number; maxDet: number },
 ): Promise<DetectResult> {
@@ -100,5 +101,10 @@ export function detectImage(
   });
   const body = new FormData();
   body.append("file", file);
-  return requestJson(`/api/detect?${query}`, isDetectResult, { method: "POST", body });
+  const result = await requestJson(`/api/detect?${query}`, isDetectResult, {
+    method: "POST",
+    body,
+  });
+  appendHistory(result);
+  return result;
 }

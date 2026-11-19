@@ -69,7 +69,7 @@
 | **Mô hình chính (live preview)** | **YOLO11s** (Ultralytics), fine-tune từ COCO; MVP chạy `imgsz=320` trên CPU |
 | Baseline so sánh | **YOLOv8s**, **Faster R-CNN ResNet50-FPN v2** — mở rộng, **chưa triển khai** |
 | Biến thể khởi tạo | MVP chỉ chạy COCO-pretrained; scratch và ma trận 6 cấu hình × 3 seed là mở rộng, **chưa chạy** |
-| Backend | **FastAPI + Uvicorn**; REST + **WebSocket** (frame JPEG nhị phân); suy luận PyTorch trên CPU/CUDA/MPS |
+| Backend | **FastAPI + Uvicorn**; REST + **WebSocket** (frame JPEG nhị phân); train/eval bằng PyTorch, service web suy luận bằng **ONNX Runtime** |
 | Frontend | **React + Vite + TypeScript**; webcam bằng `getUserMedia`, vẽ hộp bằng canvas overlay |
 | Đánh giá | Evaluator chung trong repo (`src/tomato_det/eval`): mAP@.5, mAP@.5:.95, AP theo lớp, precision/recall, confusion matrix; test chỉ chạy sau evaluation lock |
 | Dữ liệu | PlantDoc detection; `TEST` chính thức giữ nguyên; `val` tách từ `TRAIN` theo nhóm ảnh trùng |
@@ -492,7 +492,13 @@ Checkpoint gate cần được train với ảnh lá cà chua dương tính và 
 trong demo. Mọi hướng xử lý theo bệnh trên giao diện chỉ là gợi ý IPM học thuật, không có liều lượng hoặc
 khuyến cáo thuốc; cần xác nhận thực địa trước khi can thiệp.
 
-Chỉ muốn chạy demo: đặt trọng số vào `weights/<exp_id>/best.pt` rồi chạy bước 5. Khi thiếu trọng số, UI hiển thị mô hình tương ứng là "chưa có" thay vì lỗi.
+Chỉ muốn chạy demo: service đọc graph ONNX tại `weights/yolo11s_coco/best.onnx` (khai báo trong `configs/app.yaml`). Export graph từ checkpoint đã train (chạy `dynamic=True` để dùng được `imgsz` 320/416/640):
+
+```powershell
+python -c "from ultralytics import YOLO; YOLO('weights/yolo11s_coco/best.pt').export(format='onnx', imgsz=640, dynamic=True, opset=12, simplify=False)"
+```
+
+Khi thiếu graph, UI hiển thị mô hình tương ứng là "chưa có" thay vì lỗi. Service không cần torch: `src/tomato_det/models/onnx_detector.py` tự làm letterbox, decode và NMS bằng numpy, nhờ vậy tiến trình chạy trong ~180–205 MB thay vì ~436 MB.
 
 ### Frontend Phase 5 trên Windows
 
@@ -648,7 +654,7 @@ dùng evaluator chung của dự án cho cả val và test nên có thể lệch
 | `pycocotools` lỗi cài trên Windows | Cài Microsoft C++ Build Tools hoặc dùng WSL2. |
 | Hết VRAM khi train | Giảm `batch`; với Faster R-CNN scratch giữ batch ≥ 8 (BatchNorm đang bật) hoặc dùng tích lũy gradient. |
 | Live preview giật/trễ | Giảm `imgsz` (416/320), giảm chất lượng JPEG, dùng GPU, đóng ứng dụng nặng. |
-| UI báo mô hình "chưa có" | Chưa có `weights/<exp_id>/best.pt`; chạy `tdet train` hoặc chép trọng số vào. |
+| UI báo mô hình "chưa có" | Chưa có `weights/yolo11s_coco/best.onnx`; export graph từ checkpoint (xem §7) hoặc chép file vào. |
 | `frontend/dist` không tồn tại | Chạy `cd frontend && npm ci && npm run build`. |
 
 ---

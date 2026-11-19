@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+import importlib.util
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from tomato_det.common.config import load_yaml
 from tomato_det.common.paths import config_path, project_root
+
+# Architecture -> the module the adapter needs at import time. Keeping this map
+# here lets status reporting stay honest without importing a heavy framework.
+RUNTIME_MODULES = {
+    "yolo11s": "ultralytics",
+    "yolo11s_onnx": "onnxruntime",
+}
 
 
 class ModelUnavailableError(RuntimeError):
@@ -53,6 +61,16 @@ def model_availability(spec: ModelSpec) -> tuple[bool, str | None]:
     return True, None
 
 
+def missing_runtime(architecture: str) -> str | None:
+    """Return why this architecture cannot run here, or None when it can."""
+    module = RUNTIME_MODULES.get(architecture)
+    if module is None:
+        return f"No detector adapter is implemented for {architecture}"
+    if importlib.util.find_spec(module) is None:
+        return f"{module} is not installed"
+    return None
+
+
 def build_detector(model_id: str, *, app_config_path: Path | None = None) -> Any:
     specs = load_model_specs(app_config_path)
     if model_id not in specs:
@@ -61,6 +79,13 @@ def build_detector(model_id: str, *, app_config_path: Path | None = None) -> Any
     available, reason = model_availability(spec)
     if not available:
         raise ModelUnavailableError(f"{model_id} is unavailable: {reason}")
+    runtime_problem = missing_runtime(spec.architecture)
+    if runtime_problem is not None:
+        raise ModelUnavailableError(f"{model_id} is unavailable: {runtime_problem}")
+    if spec.architecture == "yolo11s_onnx":
+        from tomato_det.models.onnx_detector import OnnxDetector
+
+        return OnnxDetector(model_id=spec.model_id, checkpoint=spec.checkpoint)
     if spec.architecture != "yolo11s":
         raise ModelUnavailableError(f"No detector adapter is implemented for {spec.architecture}")
     from tomato_det.models.yolo_detector import YoloDetector

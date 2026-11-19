@@ -5,9 +5,9 @@ default_model: yolo11s_coco
 allowed_image_sizes: [320, 416, 640]
 models:
   yolo11s_coco:
-    display_name: YOLO11s fine-tuned from COCO
-    architecture: yolo11s
-    checkpoint: weights/yolo11s_coco/best.pt
+    display_name: YOLO11s fine-tuned from COCO (ONNX Runtime)
+    architecture: yolo11s_onnx
+    checkpoint: weights/yolo11s_coco/best.onnx
 tomato_gate:
   enabled: true
   checkpoint: weights/tomato_gate/best.pt
