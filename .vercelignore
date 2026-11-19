@@ -1,0 +1,33 @@
+# Vercel uploads the whole repository; keep only what the two services need.
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.git/
+.vercel/
+.env
+
+# Training/QA artifacts are large and unused by the deployed services.
+data/raw/
+data/interim/
+data/processed/
+runs/
+reports/
+tests/
+*.pt
+*.engine
+weights/
+docs/
+shot-*.png
+demo_ui.html
+start_demo.bat
+
+# The ONNX graph the API loads is the committed copy in deploy/model/.
+!deploy/model/best.onnx
+
+# Node dependencies are reinstalled during the Vite build.
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/

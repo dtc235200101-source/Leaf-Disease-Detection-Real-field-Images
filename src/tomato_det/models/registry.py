@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -17,6 +19,9 @@ RUNTIME_MODULES = {
     "yolo11s_onnx": "onnxruntime",
 }
 
+# Per-deployment checkpoint override; the allowed paths still come from app.yaml.
+CHECKPOINT_ENV_PREFIX = "TDET_CHECKPOINT_"
+
 
 class ModelUnavailableError(RuntimeError):
     """Raised before inference/training when a configured local model cannot be used."""
@@ -28,6 +33,17 @@ class ModelSpec:
     display_name: str
     architecture: str
     checkpoint: Path
+
+
+def checkpoint_env_var(model_id: str) -> str:
+    """Return the env var that may override one allowlisted model's checkpoint.
+
+    ``yolo11s_coco`` becomes ``TDET_CHECKPOINT_YOLO11S_COCO``. Deployments that
+    ship the graph at a different path (for example the committed
+    ``deploy/model/best.onnx`` on Vercel) set this instead of editing app.yaml.
+    """
+    slug = re.sub(r"[^A-Za-z0-9]+", "_", model_id).strip("_").upper()
+    return f"{CHECKPOINT_ENV_PREFIX}{slug}"
 
 
 def load_model_specs(app_config_path: Path | None = None) -> dict[str, ModelSpec]:
@@ -43,7 +59,8 @@ def load_model_specs(app_config_path: Path | None = None) -> dict[str, ModelSpec
         missing = required.difference(raw)
         if missing:
             raise ValueError(f"Model {model_id} missing: {', '.join(sorted(missing))}")
-        checkpoint = Path(str(raw["checkpoint"]))
+        override = os.environ.get(checkpoint_env_var(str(model_id)), "").strip()
+        checkpoint = Path(override or str(raw["checkpoint"]))
         if not checkpoint.is_absolute():
             checkpoint = project_root() / checkpoint
         specs[str(model_id)] = ModelSpec(

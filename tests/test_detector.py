@@ -41,6 +41,18 @@ def test_missing_allowlisted_checkpoint_is_unavailable(
         build_detector("yolo11s_coco", app_config_path=ROOT / "configs" / "app.yaml")
 
 
+def test_checkpoint_env_override_replaces_app_yaml_path(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tomato_det.models import registry
+
+    monkeypatch.setattr(registry, "project_root", lambda: tmp_path)
+    monkeypatch.setenv("TDET_CHECKPOINT_YOLO11S_COCO", "deploy/model/best.onnx")
+    specs = load_model_specs(ROOT / "configs" / "app.yaml")
+
+    assert specs["yolo11s_coco"].checkpoint == tmp_path / "deploy" / "model" / "best.onnx"
+
+
 def test_registry_rejects_model_id_outside_allowlist() -> None:
     with pytest.raises(ModelUnavailableError, match="not allowlisted"):
         build_detector("arbitrary-path")

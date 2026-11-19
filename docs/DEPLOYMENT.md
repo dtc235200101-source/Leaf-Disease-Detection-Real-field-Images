@@ -12,9 +12,9 @@
 Vì có **backend Python + model AI (onnxruntime) + WebSocket**, hai hướng sau không dùng được:
 
 - **GitHub Pages**: chỉ phục vụ file tĩnh, không chạy được Python/torch/WebSocket.
-- **Vercel**: serverless function giới hạn dung lượng bundle (không chứa nổi torch) và không phù hợp WebSocket stateful.
+- **Vercel (một project một framework)**: serverless function giới hạn dung lượng bundle (không chứa nổi torch) và WebSocket stateful không phù hợp. Từ 2026 Vercel có **Services** (nhiều service trong một project) — xem mục 9 để dùng làm phương án thay thế.
 
-→ Dùng **Render Web Service (Docker, plan free)**: build một image duy nhất chứa cả React build, FastAPI và checkpoint.
+→ Mặc định dùng **Render Web Service (Docker, plan free)**: build một image duy nhất chứa cả React build, FastAPI và checkpoint.
 
 ## 2. File cấu hình đã có trong repo
 
@@ -100,3 +100,36 @@ Sau đó bấm **Manual Deploy** trên Render (Blueprint mặc định không au
 ## 8. Ghi chú license
 
 Checkpoint được phân phối kèm image kế thừa **AGPL-3.0** từ Ultralytics. Không đưa dataset PlantDoc lên repo/image công khai (CC BY 4.0, ảnh gốc thu thập từ internet).
+
+## 9. Phương án thay thế: Vercel Services
+
+Repo có sẵn `vercel.json` mô tả **một project, hai service**:
+
+| Service | Root | Framework | Public tại |
+|---|---|---|---|
+| `app` | `.` | `fastapi` (entrypoint `main:app`) | `/api/*`, `/ws/*` |
+| `frontend` | `frontend` | `vite` | mọi path còn lại (`/`) |
+
+Không có binding giữa hai service: frontend là SPA tĩnh, gọi API bằng URL tương đối
+(`frontend/src/api/endpoints.ts`), nên trình duyệt đi qua cùng domain và rewrite
+`/api/*` mới là thứ nối hai service. Binding chỉ inject biến môi trường vào function
+lúc chạy, Vite build không đọc được.
+
+Thiết lập trên Vercel (Project → Settings → Environment Variables):
+
+| Biến | Giá trị | Lý do |
+|---|---|---|
+| `TDET_CHECKPOINT_YOLO11S_COCO` | `deploy/model/best.onnx` | `app.yaml` trỏ `weights/yolo11s_coco/best.onnx` (bị git-ignore); Vercel chỉ có bản trong `deploy/model` |
+| `TDET_DEVICE` | `cpu` | serverless không có GPU |
+| `TDET_MAX_LOADED_MODELS` | `1` | giới hạn RAM của function |
+
+`main.py` ở root chỉ thêm `src/` vào `sys.path` rồi export `app`, vì Vercel tìm
+`main.py`/`app.py` ở root còn package nằm trong `src/`. `installCommand` của service
+`app` cài `requirements-serve.txt` (không có torch) thay vì `pyproject.toml`.
+
+Hạn chế cần biết trước khi chọn Vercel:
+
+- Function có giới hạn thời lượng; WebSocket `/ws/detect` sẽ bị ngắt khi hết thời gian, client phải tự nối lại.
+- Bundle Python (onnxruntime + numpy + Pillow + graph 36 MB) phải nằm dưới hạn mức 500 MB; `.vercelignore` đã loại `reports/`, `runs/`, `data/raw`, `weights/`, `tests/`.
+- Cold start tương tự Render free; model nạp lười ở request đầu.
+

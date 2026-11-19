@@ -22,4 +22,8 @@ weights/**/*.onnx
 weights/**/*.engine
 frontend/node_modules/
 frontend/dist/
+frontend/coverage/
+
+# Vercel CLI state and local service links
+.vercel/
 
