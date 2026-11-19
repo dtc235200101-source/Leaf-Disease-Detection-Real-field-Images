@@ -36,7 +36,7 @@ def test_missing_allowlisted_checkpoint_is_unavailable(
     available, reason = model_availability(specs["yolo11s_coco"])
 
     assert not available
-    assert reason == "Local checkpoint is missing"
+    assert reason is not None and reason.startswith("Local checkpoint is missing")
     with pytest.raises(ModelUnavailableError, match="unavailable"):
         build_detector("yolo11s_coco", app_config_path=ROOT / "configs" / "app.yaml")
 

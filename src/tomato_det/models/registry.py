@@ -74,7 +74,9 @@ def load_model_specs(app_config_path: Path | None = None) -> dict[str, ModelSpec
 
 def model_availability(spec: ModelSpec) -> tuple[bool, str | None]:
     if not spec.checkpoint.is_file():
-        return False, "Local checkpoint is missing"
+        # Include the resolved path so a deployed instance reports exactly which
+        # file path it tried to load.
+        return False, f"Local checkpoint is missing: {spec.checkpoint}"
     return True, None
 
 

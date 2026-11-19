@@ -141,7 +141,7 @@ def test_real_manager_reports_missing_checkpoint_without_crashing(
 
     assert models.status_code == 200
     assert models.json()[0]["available"] is False
-    assert models.json()[0]["reason"] == "Local checkpoint is missing"
+    assert models.json()[0]["reason"].startswith("Local checkpoint is missing")
     assert detect.status_code == 503
     assert detect.json()["code"] == "MODEL_UNAVAILABLE"
 
